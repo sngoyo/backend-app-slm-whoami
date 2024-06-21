@@ -2,12 +2,15 @@ const express = require('express');
 const router = express.Router();
 
 
-//middleware
-//Retriving IP address
-//req.socket.remoteAddress
-router.get('/whoami', (req, res, next) => {
-    req.headerData = {};
+//Below are Chained middlewares
 
+//Middleware to retrieve IP address
+router.get('/whoami', (req, res, next) => {
+
+    //initializing request object to hold retrieved values from get method
+    req.headerData = {};
+    
+    //Middle Retrieving ip address and attach it to initialised req above
     if (!req.ip){
         return res.json({error: 'Invalid request'})
     } else {
@@ -15,6 +18,7 @@ router.get('/whoami', (req, res, next) => {
         next();
     }
 
+    //Middle Retrieving language from request 
 }, (req, res, next) => {
    const lang = req.acceptsLanguages(['fr', 'en']);
   
@@ -25,9 +29,10 @@ router.get('/whoami', (req, res, next) => {
         next();
     }
 
+    //Middle Retrieving software from request object
 }, (req, res, next) => {
    const software = req.get('User-Agent');
-    //const software = req.headers['User-Agent'];
+
     if(!software){
         return res.json({error: 'Invalid request'});
     } else {
@@ -35,6 +40,7 @@ router.get('/whoami', (req, res, next) => {
         next();
     }
 
+    //Middleware to send response after retrieval of ip address, language and software
 } , (req, res) => {
     const { ip, language, software } = req.headerData;
     res.json({'ipaddress': ip, 'language': language, 'software': software});
